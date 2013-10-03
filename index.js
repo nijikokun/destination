@@ -1,4 +1,8 @@
-
+/**
+ * Destination Framework - Built with you in mind.
+ * 
+ * @copyright 2013 Nijiko Yonskai MIT
+ */
 var Destination = {}
   , Validator = require('schema-validator')
   , Inflection = require('inflection');
