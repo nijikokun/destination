@@ -15,6 +15,10 @@ Layer.log.database = new Layer.log.ext('Database', "blue");
 Layer.log.model = new Layer.log.ext('Model', "cyan");
 Layer.log.routing = new Layer.log.ext('Routing', "magenta");
 
+Layer.level = function (level) {
+  Layer.log.level = level;
+};
+
 Layer.start = function (server, database) {
   Layer.log.ext.setMinLevel(Layer.log.level);
 
