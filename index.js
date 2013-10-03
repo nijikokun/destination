@@ -26,7 +26,7 @@ Destination.start = function (server, database) {
     Destination.log.core.fatal("Database argument is invalid, must be an object and have a name property.");
 
   Destination.log.core.info('Flattening Time & Space');
-  Destination.log.core.info('Loading Database Adapter: Destination-' + database.name);
+  Destination.log.core.info('Loading Database Adapter: destination-' + database.name);
 
   var Database = require('destination-' + database.name);
   if (!Database || typeof Database !== 'function')

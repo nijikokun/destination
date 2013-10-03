@@ -1,18 +1,22 @@
-var Layer = require('../layer');
-Layer.log.level = 'debug';
-
-// application
+// Application
 var express = require('express');
 var app = express();
+var Destination = require('../layer');
+
+// Logging
+Destination.level('debug');
+
+// Body Parser
 app.use(express.bodyParser());
 
-var layer = Layer.start(app, {
+// Initialize Destination
+var destination = Destination.start(app, {
   name: 'mongodb',
   host: '127.0.0.1'
 });
 
 // Another Way
-var User = layer.define('User', {
+var User = destination.define('User', {
   collection: true,
 
   routing: {
@@ -37,4 +41,5 @@ var User = layer.define('User', {
   }
 });
 
-layer.listen(1337);
+// Optional, you can use app.listen
+destination.listen(1337);
