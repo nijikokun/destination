@@ -1,5 +1,5 @@
 {
-  "name": "Destination",
+  "name": "destination",
   "version": "0.0.1",
   "description": "Easiest API Framework Layer w/ Database agnostic ORM",
   "main": "index.js",
