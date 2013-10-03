@@ -1,0 +1,28 @@
+{
+  "name": "Layer",
+  "version": "0.0.1",
+  "description": "Easiest API Framework Layer w/ Database agnostic ORM",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "layer",
+    "database",
+    "agnostic",
+    "orm",
+    "api",
+    "routing",
+    "easy",
+    "mongodb",
+    "rest",
+    "restful"
+  ],
+  "author": "Nijiko Yonskai",
+  "license": "MIT",
+  "dependencies": {
+    "schema-validator": "~3.2.1",
+    "inflection": "~1.2.6",
+    "extlog": "~1.0.2"
+  }
+}
