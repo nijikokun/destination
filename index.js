@@ -36,13 +36,13 @@ Destination.start = function (server, database) {
   if (!Database || typeof Database !== 'function')
     Destination.log.core.fatal("Invalid database adapter name", database.name);
 
-  var library = {
+  var objective = {
     application: server,
     store: {},
-    database: new Database(database, library, Destination),
+    database: new Database(database, objective, Destination),
     define: function (name, object) {
       Destination.log.core.info('Defining Model: ' + name);
-      library.store[name] = Destination.model(library, name, object);
+      objective.store[name] = Destination.model(objective, name, object);
 
       if (object.collection) {
         var collection;
@@ -55,20 +55,20 @@ Destination.start = function (server, database) {
         delete object.collection;
 
         // Define Database Collection / Model
-        library.database.define(name, library.store[name].build());
+        objective.database.define(name, objective.store[name].build());
       }
 
       // Return built model
-      return library.store[name];
+      return objective.store[name];
     },
 
     listen: function (port) {
       Destination.log.core.info('Server started at:', 'http://localhost:' + port + '/');
-      library.application.listen(port);
+      objective.application.listen(port);
     }
   };
 
-  return library;
+  return objective;
 };
 
 Destination.model = function (parent, name, object) {
