@@ -96,7 +96,7 @@ You don't even have to use the Objective variable to listen, you can use your ap
 
 ### Adapters
 
-- (MongoDB)[https://github.com/Nijikokun/destination-mongodb] by Nijikokun
+- [destination-mongodb](https://github.com/Nijikokun/destination-mongodb) by Nijikokun
 
 
 ### Todo
