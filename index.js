@@ -17,11 +17,10 @@ Layer.log.routing = new Layer.log.ext('Routing', "magenta");
 
 Layer.level = function (level) {
   Layer.log.level = level;
+  Layer.log.ext.setMinLevel(Layer.log.level);
 };
 
 Layer.start = function (server, database) {
-  Layer.log.ext.setMinLevel(Layer.log.level);
-
   if (!server) Layer.log.core.fatal("Server parameter is empty... we suggest using express.");
   if (!database || database && !database.name || database && typeof database !== 'object')
     Layer.log.core.fatal("Database argument is invalid, must be an object and have a name property.");
