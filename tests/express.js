@@ -1,7 +1,7 @@
 // Application
 var express = require('express');
 var app = express();
-var Destination = require('../layer');
+var Destination = require('../index');
 
 // Logging
 Destination.level('debug');
