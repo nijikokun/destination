@@ -24,7 +24,7 @@ var Objective = Destination.start(/* Express Application (app, generally) */, {
 });
 ```
 
-Start defining objective Models, Property schema curtesy of (Validator)[https://github.com/Nijikokun/Validator#implementations].
+Start defining objective Models, Property schema curtesy of [Validator](https://github.com/Nijikokun/Validator#implementations).
 
 ```js
 var User = Objective.define('User', {
@@ -101,4 +101,4 @@ You don't even have to use the Objective variable to listen, you can use your ap
 
 ### Todo
 
-- Find a way to support any application framework instead of Express.
+- [ ] Find a way to support any application framework instead of Express.
