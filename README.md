@@ -16,10 +16,11 @@ Include the Destination Framework
 var Destination = require('destination');
 ```
 
-Install an Adapter, and start an objective:
+Install an [Adapter](#adapters), and start an objective:
 
 ```js
 var Objective = Destination.start(/* Express Application (app, generally) */, {
+  name: 'adapter name such as (mongodb)',
   ... Adapter Settings ...
 });
 ```
