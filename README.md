@@ -24,7 +24,7 @@ var Objective = Destination.start(/* Express Application (app, generally) */, {
 });
 ```
 
-Start defining objective Models (Property schema curtesy of (Validator)[https://github.com/Nijikokun/Validator#implementations]):
+Start defining objective Models (Property schema curtesy of (Validator)[https://github.com/Nijikokun/Validator#implementations].):
 
 ```js
 var User = Objective.define('User', {
