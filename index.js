@@ -1,44 +1,44 @@
 
-var Layer = {}
+var Destination = {}
   , Validator = require('schema-validator')
   , Inflection = require('inflection');
 
-// Logging Layer
-Layer.log = {
+// Logging Destination
+Destination.log = {
   ext: require('extlog'),
   level: 'info'
 };
 
 // Setup Logging
-Layer.log.core = new Layer.log.ext('Layer', "green");
-Layer.log.database = new Layer.log.ext('Database', "blue");
-Layer.log.model = new Layer.log.ext('Model', "cyan");
-Layer.log.routing = new Layer.log.ext('Routing', "magenta");
+Destination.log.core = new Destination.log.ext('Destination', "green");
+Destination.log.database = new Destination.log.ext('Database', "blue");
+Destination.log.model = new Destination.log.ext('Model', "cyan");
+Destination.log.routing = new Destination.log.ext('Routing', "magenta");
 
-Layer.level = function (level) {
-  Layer.log.level = level;
-  Layer.log.ext.setMinLevel(Layer.log.level);
+Destination.level = function (level) {
+  Destination.log.level = level;
+  Destination.log.ext.setMinLevel(Destination.log.level);
 };
 
-Layer.start = function (server, database) {
-  if (!server) Layer.log.core.fatal("Server parameter is empty... we suggest using express.");
+Destination.start = function (server, database) {
+  if (!server) Destination.log.core.fatal("Server parameter is empty... we suggest using express.");
   if (!database || database && !database.name || database && typeof database !== 'object')
-    Layer.log.core.fatal("Database argument is invalid, must be an object and have a name property.");
+    Destination.log.core.fatal("Database argument is invalid, must be an object and have a name property.");
 
-  Layer.log.core.info('Flattening Time & Space');
-  Layer.log.core.info('Loading Database Adapter: layer-' + database.name);
+  Destination.log.core.info('Flattening Time & Space');
+  Destination.log.core.info('Loading Database Adapter: Destination-' + database.name);
 
-  var Database = require('layer-' + database.name);
+  var Database = require('destination-' + database.name);
   if (!Database || typeof Database !== 'function')
-    Layer.log.core.fatal("Invalid database adapter name", database.name);
+    Destination.log.core.fatal("Invalid database adapter name", database.name);
 
   var library = {
     application: server,
     store: {},
-    database: new Database(database, library, Layer),
+    database: new Database(database, library, Destination),
     define: function (name, object) {
-      Layer.log.core.info('Defining Model: ' + name);
-      library.store[name] = Layer.model(library, name, object);
+      Destination.log.core.info('Defining Model: ' + name);
+      library.store[name] = Destination.model(library, name, object);
 
       if (object.collection) {
         var collection;
@@ -59,7 +59,7 @@ Layer.start = function (server, database) {
     },
 
     listen: function (port) {
-      Layer.log.core.info('Server started at:', 'http://localhost:' + port + '/');
+      Destination.log.core.info('Server started at:', 'http://localhost:' + port + '/');
       library.application.listen(port);
     }
   };
@@ -67,7 +67,7 @@ Layer.start = function (server, database) {
   return library;
 };
 
-Layer.model = function (parent, name, object) {
+Destination.model = function (parent, name, object) {
   var route = name.toLowerCase();
   var routing = {
     handle: function (route) {
@@ -82,7 +82,7 @@ Layer.model = function (parent, name, object) {
         remove: { by: 'id' }
       };
 
-      Layer.log.routing.info('Creating routes...');
+      Destination.log.routing.info('Creating routes...');
 
       for (var key in route)
         if (!route.hasOwnProperty(key)) continue;
@@ -90,7 +90,7 @@ Layer.model = function (parent, name, object) {
     },
 
     all: function (remove, middleware) {
-      Layer.log.routing.debug('Creating fetch-all route', 'GET /' + inflection.pluralize(route));
+      Destination.log.routing.debug('Creating fetch-all route', 'GET /' + inflection.pluralize(route));
 
       parent.application.get('/' + inflection.pluralize(route), (middleware || []), function (request, result) {
         var filter = {}; 
@@ -105,7 +105,7 @@ Layer.model = function (parent, name, object) {
     },
 
     fetch: function (options) {
-      Layer.log.routing.debug('Creating fetch route', '   GET /' + route + ('/:' + options.by));
+      Destination.log.routing.debug('Creating fetch route', '   GET /' + route + ('/:' + options.by));
 
       parent.application.get('/' + route + ('/:' + options.by), (options.middleware || []), function (request, result) {
         var query = { };
@@ -120,7 +120,7 @@ Layer.model = function (parent, name, object) {
     },
 
     create: function (options) {
-      Layer.log.routing.debug('Creating create route', '  POST /' + route);
+      Destination.log.routing.debug('Creating create route', '  POST /' + route);
 
       parent.application.post('/' + route, (options.middleware || []), function (request, result) {
         var data = request.body;
@@ -139,7 +139,7 @@ Layer.model = function (parent, name, object) {
     },
 
     upsert: function (options) {
-      Layer.log.routing.debug('Creating update/insert (upsert) route', '   PUT /' + route + ('/:' + options.by));
+      Destination.log.routing.debug('Creating update/insert (upsert) route', '   PUT /' + route + ('/:' + options.by));
 
       parent.application.put('/' + route + ('/:' + options.by), (options.middleware || []), function (request, result) {
         var data = request.body;
@@ -160,7 +160,7 @@ Layer.model = function (parent, name, object) {
     },
 
     update: function (options) {
-      Layer.log.routing.debug('Creating update route', ' PATCH /' + route + ('/:' + options.by));
+      Destination.log.routing.debug('Creating update route', ' PATCH /' + route + ('/:' + options.by));
 
       parent.application.patch('/' + route + ('/:' + options.by), (options.middleware || []), function (request, result) {
         var data = request.body;
@@ -181,7 +181,7 @@ Layer.model = function (parent, name, object) {
     },
 
     remove: function (options) {
-      Layer.log.routing.debug('Creating remove route', 'DELETE /' + route + ('/:' + options.by));
+      Destination.log.routing.debug('Creating remove route', 'DELETE /' + route + ('/:' + options.by));
 
       parent.application.delete('/' + route + ('/:' + options.by), (options.middleware || []), function (request, result) {
         var query = { where: {} };
@@ -196,7 +196,7 @@ Layer.model = function (parent, name, object) {
     },
 
     count: function (options) {
-      Layer.log.routing.debug('Creating count route', '   GET /' + route);
+      Destination.log.routing.debug('Creating count route', '   GET /' + route);
 
       parent.application.get('/' + route + '/count', (options.middleware || []), function (request, result) {
         var filter = {};
@@ -208,7 +208,7 @@ Layer.model = function (parent, name, object) {
     },
 
     empty: function (options) {
-      Layer.log.routing.debug('Creating empty route', '   GET /' + route);
+      Destination.log.routing.debug('Creating empty route', '   GET /' + route);
 
       parent.application.get('/' + route + '/empty', (options.middleware || []), function (request, result) {
         parent.database.empty(name, function (error, data) {
@@ -224,10 +224,10 @@ Layer.model = function (parent, name, object) {
     store: {},
 
     property: function (key, object) {
-      if (!key) Layer.log.model.fatal("Missing property key for object", object);
+      if (!key) Destination.log.model.fatal("Missing property key for object", object);
       if (key && !object) return definition.store[key];
       if (key && typeof object === 'string') {
-        definition.store[key] = Layer.store[type];
+        definition.store[key] = Destination.store[type];
       } else definition.store[key] = object;
       return definition;
     },
@@ -265,4 +265,4 @@ Layer.model = function (parent, name, object) {
   return definition;
 };
 
-module.exports = Layer;
+module.exports = Destination;
