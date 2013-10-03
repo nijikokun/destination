@@ -14,7 +14,7 @@ Destination.log = {
 };
 
 // Setup Logging
-Destination.log.core = new Destination.log.ext('Destination', "green");
+Destination.log.core = new Destination.log.ext('Core', "green");
 Destination.log.database = new Destination.log.ext('Database', "blue");
 Destination.log.model = new Destination.log.ext('Model', "cyan");
 Destination.log.routing = new Destination.log.ext('Routing', "magenta");
