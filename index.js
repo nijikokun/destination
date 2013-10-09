@@ -15,6 +15,7 @@ Destination.log = {
 };
 
 // Setup Logging
+Destination.log.ext.setMinLevel(Destination.log.level);
 Destination.log.core = new Destination.log.ext('Core', "green");
 Destination.log.database = new Destination.log.ext('Database', "blue");
 Destination.log.model = new Destination.log.ext('Model', "cyan");
@@ -22,7 +23,15 @@ Destination.log.routing = new Destination.log.ext('Routing', "magenta");
 
 Destination.level = function (level) {
   Destination.log.level = level;
+
+  // Setup the original
   Destination.log.ext.setMinLevel(Destination.log.level);
+
+  // Set the rest
+  Destination.log.core.setMinLevel(Destination.log.level);
+  Destination.log.database.setMinLevel(Destination.log.level);
+  Destination.log.model.setMinLevel(Destination.log.level);
+  Destination.log.routing.setMinLevel(Destination.log.level);
 };
 
 Destination.start = function (server, database) {
@@ -77,35 +86,45 @@ Destination.model = function (parent, name, object) {
   var routing = {
     handle: function (route) {
       if (typeof route === 'undefined' || (typeof route === 'boolean' && route)) route = {
-        fetchAll: { remove: [ 'password' ] },
-        fetch: { by: 'id', searchable: true },
+        fetchAll: { 
+          projection: { 
+            _id: 1 
+          } 
+        },
+        fetch: { 
+          by: '_id', 
+          projection: { 
+            _id: 1 
+          } 
+        },
         create: true,
+        upsert: { by: '_id' },
+        update: { by: '_id' }, 
+        remove: { by: '_id' },
         count: false,
-        empty: false,
-        upsert: { by: 'id' },
-        update: { by: 'id' }, 
-        remove: { by: 'id' }
+        empty: false
       };
 
       Destination.log.routing.info('Creating routes...');
-
       for (var key in route)
         if (!route.hasOwnProperty(key)) continue;
         else if (routing[key]) routing[key](typeof route[key] === 'object' ? route[key] : {});
     },
 
-    all: function (remove, middleware) {
-      Destination.log.routing.debug('Creating fetch-all route', 'GET /' + inflection.pluralize(route));
+    all: function (options) {
+      Destination.log.routing.debug('Creating fetch-all route', 'GET /' + inflection.pluralize(options.route));
 
-      parent.application.get('/' + inflection.pluralize(route), (middleware || []), function (request, result) {
+      parent.application.get('/' + inflection.pluralize(options.route), (options.middleware || []), function (request, result) {
         var filter = {}; 
-
         filter.offset = request.query['offset'] || undefined;
+        filter.projection = options.projection;
         
         parent.database.all(name, filter, function (error, data) {
-          if (error) result.json(404, { error: { message: 'No data found.' }});
+          (error) && Destination.log.routing.debug('Error', error);
+          (data) && Destination.log.routing.debug('Data', data);
+          if (error || !data) result.json(404, { error: { message: 'No data found.' }});
           else result.json(200, data);
-        })
+        });
       });
     },
 
@@ -113,19 +132,15 @@ Destination.model = function (parent, name, object) {
       Destination.log.routing.debug('Creating fetch route', '   GET /' + route + ('/:' + options.by));
 
       parent.application.get('/' + route + ('/:' + options.by), (options.middleware || []), function (request, result) {
+        Destination.log.routing.debug('Request recieved at: ', '/' + route + '/' + request.params[options.by]);
+
         var query = { };
-
         query[options.by] = request.params[options.by];
-
-        parent.database.find(name, query, function (error, data) {
-          if (error) return result.json(404, { error: { message: 'No data found.' }});
-
-          var path = Keypath.on(data);
-          if (options.remove)
-            for (var i = 0; i < options.remove.length; i++) 
-              path.remove(options.remove[i]);
-
-          result.json(200, data); path = null;
+        parent.database.find(name, query, options.projection, function (error, data) {
+          (error) && Destination.log.routing.debug('Error', error);
+          (data) && Destination.log.routing.debug('Data', data);
+          if (error || !data) return result.json(404, { error: { message: 'No data found.' }});
+          result.json(200, data);
         });
       });
     },
@@ -134,6 +149,7 @@ Destination.model = function (parent, name, object) {
       Destination.log.routing.debug('Creating create route', '  POST /' + route);
 
       parent.application.post('/' + route, (options.middleware || []), function (request, result) {
+        Destination.log.routing.debug('Request recieved at: ', '/' + route + '/' + request.params[options.by]);
         var data = request.body;
         var validation = new Validator(definition.build());
         var check = validation.check(data);
@@ -142,6 +158,8 @@ Destination.model = function (parent, name, object) {
           result.json(404, { error: { fields: check }});
         } else {
           parent.database.create(name, data, function (error, data) {
+            (error) && Destination.log.routing.debug('Error', error);
+            (data) && Destination.log.routing.debug('Data', data);
             if (error) result.json(404, { error: { message: 'Could not create entry.', details: error }});
             else result.json(200, data);
           });
@@ -163,6 +181,8 @@ Destination.model = function (parent, name, object) {
           data.where = {};
           data.where[options.by] = request.params[options.by];
           parent.database.upsert(name, data, function (error, data) {
+            (error) && Destination.log.routing.debug('Error', error);
+            (data) && Destination.log.routing.debug('Data', data);
             if (error) result.json(500, { error: { message: 'Could not upsert entry with ' + options.by + ' of ' + data.where[options.by], details: error }});
             else result.json(200, data);
           });
@@ -199,7 +219,7 @@ Destination.model = function (parent, name, object) {
 
         query.where[options.by] = request.params[options.by];
 
-        parent.database.update(name, query, function (error, data) {
+        parent.database.remove(name, query, function (error, data) {
           if (error) result.json(500, { error: { message: 'Could not delete entry with ' + options.by + ' of ' + data.where[options.by] }});
           else result.json(200, data);
         });

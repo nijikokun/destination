@@ -20,7 +20,7 @@ var User = destination.define('User', {
   collection: true,
 
   routing: {
-    fetch: { by: 'name', searchable: false },
+    fetch: { by: 'name', projection: { name: 1 } },
     create: true
   },
 
