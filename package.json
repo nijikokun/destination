@@ -25,6 +25,7 @@
   "dependencies": {
     "schema-validator": "~3.2.1",
     "inflection": "~1.2.6",
-    "extlog": "~1.0.2"
+    "extlog": "~1.0.2",
+    "nasa-keypath": "0.0.1"
   }
 }

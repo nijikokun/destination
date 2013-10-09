@@ -5,7 +5,8 @@
  */
 var Destination = {}
   , Validator = require('schema-validator')
-  , Inflection = require('inflection');
+  , Inflection = require('inflection')
+  , Keypath = require('nasa-keypath');
 
 // Logging Destination
 Destination.log = {
@@ -117,8 +118,14 @@ Destination.model = function (parent, name, object) {
         query[options.by] = request.params[options.by];
 
         parent.database.find(name, query, function (error, data) {
-          if (error) result.json(404, { error: { message: 'No data found.' }});
-          else result.json(200, data);
+          if (error) return result.json(404, { error: { message: 'No data found.' }});
+
+          var path = Keypath.on(data);
+          if (options.remove)
+            for (var i = 0; i < options.remove.length; i++) 
+              path.remove(options.remove[i]);
+
+          result.json(200, data); path = null;
         });
       });
     },
